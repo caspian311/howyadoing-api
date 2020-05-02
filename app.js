@@ -4,6 +4,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 
+const db = require("./models");
+db.sequelize.sync();
+
 const apiRouter = require('./routes/api');
 
 const app = express();

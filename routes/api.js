@@ -1,38 +1,20 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const db = require('../models');
+const Metric = db.metrics;
 
 router.get('/data', function (_, res) {
-  const data = [{
-    name: '4/26',
-    weight: 239.8,
-    goal: 200
-  }, {
-    name: '4/27',
-    weight: 238.9,
-    goal: 200
-  }, {
-    name: '4/28',
-    weight: 238.4,
-    goal: 200
-  }, {
-    name: '4/29',
-    weight: 241.0,
-    goal: 200
-  }, {
-    name: '4/30',
-    weight: 239.8,
-    goal: 200
-  }, {
-    name: '5/01',
-    weight: 239.0,
-    goal: 200
-  }, {
-    name: '5/02',
-    weight: 238.0,
-    goal: 200
-  }];
-
-  res.send(data);
+  Metric.findAll()
+    .then((data) => {
+      const formattedData = data.map((datum) => {
+        return {
+          goal: datum.goal,
+          value: datum.value,
+          date: datum.createdAt
+        }
+      });
+      res.send(formattedData);
+    });
 });
 
 module.exports = router;
