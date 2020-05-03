@@ -2,15 +2,21 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models');
 const Metric = db.metrics;
+const Op = db.Sequelize.Op;
 
 router.get('/data', function (_, res) {
-  Metric.findAll()
+  Metric.findAll({
+    order: [
+      ['createdAt', 'ASC']
+    ],
+    limit: 30
+  })
     .then((data) => {
       const formattedData = data.map((datum) => {
         return {
           goal: datum.goal,
           value: datum.value,
-          date: datum.createdAt
+          date: nextDay(datum.createdAt)
         }
       });
       res.send(formattedData);
@@ -19,19 +25,30 @@ router.get('/data', function (_, res) {
 
 router.post('/data', function (req, res) {
   let value = req.body.value;
+  let currentDate = formatDate();
+  let condition = {createdAt: { [Op.gte]: currentDate } };
   
-  Metric.create({
-    value: value,
-    goal: 200,
-    createdAt: formatDate()
-  })
-    .then(data => {
-      res.status(201).send(data)
-    })
-    .catch(err => {
-      res.status(500).send({message: err.message})
+  Metric.destroy({ where: condition, truncate: false })
+    .then(() => {
+      Metric.create({
+        value: value,
+        goal: 200,
+        createdAt: currentDate
+      })
+        .then(data => {
+          res.status(201).send(data)
+        })
+        .catch(err => {
+          res.status(500).send({message: err.message})
+        })
     })
 });
+
+function nextDay(d1) {
+  let d2 = new Date();
+  d2.setTime(d1.getTime() + (60 * 60 * 24 * 1000));
+  return d2;
+}
 
 function formatDate() {
   let d = new Date();
@@ -45,7 +62,7 @@ function formatDate() {
     day = '0' + day;
   }
 
-  return [year, month, day].join('-');
+  return [year, month, day].join('-') + ' 00:00:00Z';
 }
 
 
