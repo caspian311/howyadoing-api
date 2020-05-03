@@ -22,7 +22,8 @@ router.post('/data', function (req, res) {
   
   Metric.create({
     value: value,
-    goal: 200
+    goal: 200,
+    createdAt: formatDate()
   })
     .then(data => {
       res.status(201).send(data)
@@ -30,8 +31,22 @@ router.post('/data', function (req, res) {
     .catch(err => {
       res.status(500).send({message: err.message})
     })
-
-  
 });
+
+function formatDate() {
+  let d = new Date();
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  let year = d.getFullYear();
+
+  if (month.length < 2) {
+    month = '0' + month;
+  } if (day.length < 2) {
+    day = '0' + day;
+  }
+
+  return [year, month, day].join('-');
+}
+
 
 module.exports = router;
