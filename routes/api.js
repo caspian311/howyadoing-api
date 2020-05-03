@@ -17,4 +17,21 @@ router.get('/data', function (_, res) {
     });
 });
 
+router.post('/data', function (req, res) {
+  let value = req.body.value;
+  
+  Metric.create({
+    value: value,
+    goal: 200
+  })
+    .then(data => {
+      res.status(201).send(data)
+    })
+    .catch(err => {
+      res.status(500).send({message: err.message})
+    })
+
+  
+});
+
 module.exports = router;
