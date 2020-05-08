@@ -1,10 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../models');
+const db = require('../../models');
 const Metric = db.metrics;
 const Op = db.Sequelize.Op;
 
-router.get('/data', function (_, res) {
+function get(_, res) {
   Metric.findAll({
     order: [
       ['createdAt', 'ASC']
@@ -21,9 +19,9 @@ router.get('/data', function (_, res) {
       });
       res.send(formattedData);
     });
-});
+}
 
-router.post('/data', function (req, res) {
+function post(req, res) {
   let value = req.body.value;
   let currentDate = formatDate();
   let condition = {createdAt: { [Op.gte]: currentDate } };
@@ -42,7 +40,7 @@ router.post('/data', function (req, res) {
           res.status(500).send({message: err.message})
         })
     })
-});
+}
 
 function nextDay(d1) {
   let d2 = new Date();
@@ -66,4 +64,4 @@ function formatDate() {
 }
 
 
-module.exports = router;
+module.exports = { get, post };

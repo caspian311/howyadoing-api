@@ -7,7 +7,7 @@ const cors = require('cors');
 const db = require("./models");
 db.sequelize.sync();
 
-const apiRouter = require('./routes/api');
+const apiRoutes = require('./routes/api');
 
 const app = express();
 
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-app.use('/api', apiRouter);
+app.use('/api', apiRoutes);
 
 app.use(function(req, res, next) {
   next(createError(404));
