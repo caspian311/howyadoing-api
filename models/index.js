@@ -34,5 +34,6 @@ db.Sequelize = Sequelize;
 
 db.metrics = require('./metric')(sequelize, Sequelize)
 db.users = require('./user')(sequelize, Sequelize)
+db.sessions = require('./session')(sequelize, Sequelize)
 
 module.exports = db;

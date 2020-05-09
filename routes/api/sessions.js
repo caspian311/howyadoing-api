@@ -1,6 +1,7 @@
+const uuid = require('uuid').v4
 const db = require('../../models');
 const User = db.users;
-const Session = db.session;
+const Session = db.sessions;
 const Op = db.Sequelize.Op;
 
 function post(req, res) {
@@ -18,9 +19,17 @@ function post(req, res) {
         .then((data) => {
             if (data.length === 0) {
                 res.status(400).send({message: 'Incorrect email and/or password'})
+            } else {
+                let user = data[0]
+                
+                Session.create({ token: uuid(), userId: user.id })
+                    .then((session) => {
+                        res.send(session)
+                    })
+                    .catch((err) => {
+                        res.status(500).send({message: err.message})
+                    })
             }
-            let user = data[0]
-            res.send(user)
         })
         .catch((err) => {
             res.status(500).send({message: err.message})
