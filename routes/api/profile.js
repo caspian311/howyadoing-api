@@ -19,7 +19,13 @@ function get(_, res) {
 }
 
 function post(req, res) {
-
+    User.update(req.body, {where: {}})
+        .then((data) => {
+            res.status(201).send({ message: 'updated' })
+        })
+        .catch((err) => {
+            res.status(500).send({message: err.message})
+        })
 }
 
 module.exports = { get, post };
