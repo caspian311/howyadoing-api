@@ -3,10 +3,6 @@ module.exports = (sequelize, Sequelize) => {
       value: {
         type: Sequelize.INTEGER,
         allowNull: false
-      },
-      goal: {
-        type: Sequelize.INTEGER,
-        allowNull: false
       }
     });
   
