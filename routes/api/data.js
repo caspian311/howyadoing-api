@@ -4,54 +4,36 @@ const Session = db.sessions;
 const Op = db.Sequelize.Op;
 
 async function get(req, res) {
-    let sessions = await Session.findAll({
-        where: {
-          token: req.headers['authorization']
-        }
-    })
+    try {
+        let userId = req.session.user.id
 
-    if (sessions.length === 0) {
-        res.send(401).send({message: 'Request is not authorized'})
-        return
+        let data = await Metric.findAll({
+            where: {
+                userId: userId
+            },
+            order: [
+                ['createdAt', 'ASC']
+            ],
+            limit: 30
+        })
+    
+        let formattedData = data.map((datum) => {
+            return {
+                goal: datum.goal,
+                value: datum.value,
+                date: nextDay(datum.createdAt)
+            }
+        });
+    
+        res.send(formattedData);
+    } catch(err) {
+        res.status(500).send({message: err.message})
     }
-
-    let userId = sessions[0].userId
-
-    let data = await Metric.findAll({
-        where: {
-            userId: userId
-        },
-        order: [
-            ['createdAt', 'ASC']
-        ],
-        limit: 30
-    })
-
-    let formattedData = data.map((datum) => {
-        return {
-            goal: datum.goal,
-            value: datum.value,
-            date: nextDay(datum.createdAt)
-        }
-    });
-
-    res.send(formattedData);
+    
 }
 
 async function post(req, res) {
-  let sessions = await Session.findAll({
-        where: {
-          token: req.headers['authorization']
-        }
-    })
-
-    if (sessions.length === 0) {
-        res.send(401).send({message: 'Request is not authorized'})
-        return
-    }
-
-    let userId = sessions[0].userId
-
+    let userId = req.session.user.id
     
     let value = req.body.value;
     let currentDate = formatDate();

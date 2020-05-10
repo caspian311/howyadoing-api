@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+var session = require('express-session');
 const logger = require('morgan');
 const cors = require('cors');
 
@@ -16,6 +17,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+app.use(session({
+  secret: 'supersecret'
+}))
+
+const auth = require('./auth');
+
+app.use(auth);
 
 app.use('/api', apiRoutes);
 

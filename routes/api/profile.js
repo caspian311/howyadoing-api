@@ -4,18 +4,7 @@ const Session = db.sessions;
 
 async function get(req, res) {
     try {
-        let sessions = await Session.findAll({
-            where: {
-              token: req.headers['authorization']
-            }
-        })
-
-        if (sessions.length === 0) {
-            res.send(401).send({message: 'Request is not authorized'})
-            return
-        }
-
-        let userId = sessions[0].userId
+        let userId = req.session.user.id
 
         let user = await User.findByPk(userId, {
             attributes: ['name', 'email', 'goal']
@@ -29,18 +18,7 @@ async function get(req, res) {
 
 async function post(req, res) {
     try {
-        let sessions = await Session.findAll({
-            where: {
-              token: req.headers['authorization']
-            }
-        })
-
-        if (sessions.length === 0) {
-            res.send(401).send({message: 'Request is not authorized'})
-            return
-        }
-
-        let userId = sessions[0].userId
+        let userId = req.session.user.id
 
         await User.update(req.body, {where: { id: userId }})
         res.status(201).send({ message: 'updated' })
