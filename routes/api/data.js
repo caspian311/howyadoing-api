@@ -1,45 +1,62 @@
 const db = require('../../models');
 const Metric = db.metrics;
+const Session = db.sessions;
 const Op = db.Sequelize.Op;
 
-function get(_, res) {
-  Metric.findAll({
+async function get(req, res) {
+  let sessions = await Session.findAll({
+    where: {
+      token: req.headers['authorization']
+    }
+  })
+
+  if (sessions.length === 0) {
+    res.send(401).send({message: 'Request is not authorized'})
+    return
+  }
+
+  let userId = sessions[0].userId
+
+  let data = await Metric.findAll({
+    where: {
+      userId: userId
+    },
     order: [
       ['createdAt', 'ASC']
     ],
     limit: 30
   })
-    .then((data) => {
-      const formattedData = data.map((datum) => {
-        return {
-          goal: datum.goal,
-          value: datum.value,
-          date: nextDay(datum.createdAt)
-        }
-      });
-      res.send(formattedData);
-    });
+
+  let formattedData = data.map((datum) => {
+    return {
+      goal: datum.goal,
+      value: datum.value,
+      date: nextDay(datum.createdAt)
+    }
+  });
+
+  res.send(formattedData);
 }
 
-function post(req, res) {
+async function post(req, res) {
   let value = req.body.value;
   let currentDate = formatDate();
   let condition = {createdAt: { [Op.gte]: currentDate } };
   
-  Metric.destroy({ where: condition, truncate: false })
-    .then(() => {
-      Metric.create({
+  try {
+    await Metric.destroy({ where: condition, truncate: false })
+    
+    let data = await Metric.create({
         value: value,
         goal: 200,
         createdAt: currentDate
       })
-        .then(data => {
-          res.status(201).send(data)
-        })
-        .catch(err => {
-          res.status(500).send({message: err.message})
-        })
-    })
+
+    res.status(201).send(data)
+  } catch(err) {
+    res.status(500).send({message: err.message})
+  }
+    
 }
 
 function nextDay(d1) {
