@@ -8,8 +8,6 @@ const cors = require('cors');
 const db = require("./models");
 db.sequelize.sync();
 
-const apiRoutes = require('./routes/api');
-
 const app = express();
 
 app.use(logger('common'));
@@ -18,14 +16,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 app.use(session({
-  secret: 'supersecret'
+  secret: 'supersecret',
+  resave: false,
+  saveUninitialized: false,
 }))
 
 const auth = require('./auth');
 
-app.use(auth);
+const dataApi = require('./routes/api/data');
+const profileApi = require('./routes/api/profile');
+const sessionsApi = require('./routes/api/sessions');
 
-app.use('/api', apiRoutes);
+app.post('/api/sessions', sessionsApi.post);
+
+app.get('/api/data', auth, dataApi.get);
+app.post('/api/data', auth, dataApi.post);
+app.get('/api/profile', auth, profileApi.get);
+app.post('/api/profile', auth, profileApi.post);
 
 app.use(function(req, res, next) {
   next(createError(404));
