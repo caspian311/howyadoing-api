@@ -7,6 +7,13 @@ module.exports = {
       goal: 200,
       createdAt: new Date(),
       updatedAt: new Date()
+    }, {
+      name: 'Abbi',
+      email: 'abbi.todd@gmail.com',
+      password: 'test',
+      goal: 100,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }]);
   },
 

@@ -39,16 +39,33 @@ async function get(req, res) {
 }
 
 async function post(req, res) {
+  let sessions = await Session.findAll({
+        where: {
+          token: req.headers['authorization']
+        }
+    })
+
+    if (sessions.length === 0) {
+        res.send(401).send({message: 'Request is not authorized'})
+        return
+    }
+
+    let userId = sessions[0].userId
+
+    
     let value = req.body.value;
     let currentDate = formatDate();
-    let condition = {createdAt: { [Op.gte]: currentDate } };
-    
+    let condition = {
+        userId: userId, 
+        createdAt: { [Op.gte]: currentDate } 
+    };
+
     try {
         await Metric.destroy({ where: condition, truncate: false })
-        
+
         let data = await Metric.create({
             value: value,
-            goal: 200,
+            userId: userId,
             createdAt: currentDate
           })
 
