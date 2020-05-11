@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const moment = require('moment')
 
 const db = require('./models');
 const Session = db.sessions;
@@ -10,7 +11,7 @@ app.use(async (req, res, next) => {
     try {
         let session = await getSession(req)
 
-        if (session) {
+        if (isValid(session)) {
             console.log(' -- authorized')
             req.session.user = { id: session.userId }
             next()
@@ -23,6 +24,17 @@ app.use(async (req, res, next) => {
         res.status(401).send({message: 'Request is not authorized'})
     }
 })
+
+function isValid(session) {
+    if (session == null) {
+        return false
+    }
+
+    let thirtyDaysAgo = moment().subtract(30, 'days')
+    let isTooOld = moment(session.createdAt).isBefore(thirtyDaysAgo)
+    
+    return !isTooOld
+}
 
 async function getSession(req, res) {
     try {
