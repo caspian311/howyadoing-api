@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+const secret = process.env.SECRET || 'mysecret'
 const uuid = require('uuid').v4
 const db = require('../../models')
 const User = db.users
@@ -6,7 +8,9 @@ const Op = db.Sequelize.Op
 
 async function post(req, res) {
     let email = req.body.email
-    let password = req.body.password
+    let password = crypto.createHmac('sha256', secret)
+                   .update(req.body.password)
+                   .digest('hex');
 
     try {
         let users = await User.findAll({ 
