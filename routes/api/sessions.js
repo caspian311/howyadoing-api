@@ -1,12 +1,12 @@
 const uuid = require('uuid').v4
-const db = require('../../models');
-const User = db.users;
-const Session = db.sessions;
-const Op = db.Sequelize.Op;
+const db = require('../../models')
+const User = db.users
+const Session = db.sessions
+const Op = db.Sequelize.Op
 
 async function post(req, res) {
-    let email = req.body.email;
-    let password = req.body.password;
+    let email = req.body.email
+    let password = req.body.password
 
     try {
         let users = await User.findAll({ 
@@ -34,4 +34,4 @@ async function post(req, res) {
     }
 }
 
-module.exports = { post };
+module.exports = { post }
