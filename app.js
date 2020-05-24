@@ -31,6 +31,9 @@ const sessionsApi = require('./routes/api/sessions');
 
 app.post('/api/sessions', sessionsApi.post);
 
+app.get('/', (_, res) => {
+  res.status(200).send('all good')
+});
 app.get('/api/data', auth, dataApi.get);
 app.post('/api/data', auth, dataApi.post);
 app.get('/api/profile', auth, profileApi.get);
