@@ -37,7 +37,8 @@ app.get('/', (_, res) => {
 app.get('/api/data', auth, dataApi.get);
 app.post('/api/data', auth, dataApi.post);
 app.get('/api/profile', auth, profileApi.get);
-app.post('/api/profile', auth, profileApi.post);
+app.put('/api/profile', auth, profileApi.put);
+app.post('/api/profile', profileApi.post);
 
 app.use(function(req, res, next) {
   next(createError(404));

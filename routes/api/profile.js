@@ -1,6 +1,7 @@
 const db = require('../../models');
 const User = db.users;
-const Session = db.sessions;
+const crypto = require('crypto')
+const secret = process.env.SECRET || 'mysecret'
 
 async function get(req, res) {
     try {
@@ -16,7 +17,7 @@ async function get(req, res) {
     }
 }
 
-async function post(req, res) {
+async function put(req, res) {
     try {
         let userId = req.session.user.id
 
@@ -27,4 +28,18 @@ async function post(req, res) {
     }
 }
 
-module.exports = { get, post };
+async function post(req, res) {
+    let newUser = req.body
+    newUser.password = crypto.createHmac('sha256', secret)
+                        .update(req.body.password)
+                        .digest('hex');
+
+    try {
+        await User.create(newUser)
+        res.status(201).send({ message: 'updated' })
+    } catch(err) {
+        res.status(500).send({message: err.message})
+    }
+}
+
+module.exports = { get, post, put };
