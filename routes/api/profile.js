@@ -40,8 +40,8 @@ async function post(req, res) {
             res.status(400).send({ message: 'A user with that email already exists' })
         } else {
             newUser.password = crypto.createHmac('sha256', secret)
-            .update(req.body.password)
-            .digest('hex');
+                .update(req.body.password)
+                .digest('hex');
             await User.create(newUser)
             res.status(201).send({ message: 'updated' })
         }
