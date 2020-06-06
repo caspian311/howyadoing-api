@@ -30,13 +30,21 @@ async function put(req, res) {
 
 async function post(req, res) {
     let newUser = req.body
-    newUser.password = crypto.createHmac('sha256', secret)
-                        .update(req.body.password)
-                        .digest('hex');
-
+    
     try {
-        await User.create(newUser)
-        res.status(201).send({ message: 'updated' })
+        let existingUsersWithEmail = await User.findAll({
+            where: { email: newUser.email }
+        })
+
+        if (existingUsersWithEmail.length !== 0) {
+            res.status(400).send({ message: 'A user with that email already exists' })
+        } else {
+            newUser.password = crypto.createHmac('sha256', secret)
+            .update(req.body.password)
+            .digest('hex');
+            await User.create(newUser)
+            res.status(201).send({ message: 'updated' })
+        }
     } catch(err) {
         res.status(500).send({message: err.message})
     }
