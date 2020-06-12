@@ -1,11 +1,14 @@
 const db = require('../../models');
 const Metric = db.metrics;
+const User = db.users;
 const Session = db.sessions;
 const Op = db.Sequelize.Op;
 
 async function get(req, res) {
     try {
         let userId = req.session.user.id
+
+        let user = await User.findByPk(userId, { attributes: ['goal'] })
 
         let data = await Metric.findAll({
             where: {
@@ -19,7 +22,7 @@ async function get(req, res) {
     
         let formattedData = data.map((datum) => {
             return {
-                goal: datum.goal,
+                goal: user.goal,
                 value: datum.value,
                 date: nextDay(datum.createdAt)
             }
